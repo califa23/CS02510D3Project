@@ -2,7 +2,7 @@
 
 ## Setup
 - First, clone this project
-- This project needs to be hosted in order to access multiple files in its directory to make working in it much easier.
+- This project needs to be hosted on a server in order to access multiple files in its directory to make working in it much easier.
 - I suggest running a local server with the help of Node.js
 - Install Node.js here: https://nodejs.org/en/download/
 - Once installed, run `npm install -g http-server` in a terminal
@@ -13,3 +13,8 @@
 ## Contributing
 - Please create your own branch on this project and do not merge before testing and letting us all know
     - ex: `git checkout -B /califano`
+
+## Files
+- index.html - main landing page
+- main.js - main javascript file containing a majority of the logic
+- coordinates.js - a dictionary with all possible paths and the coordinates of those paths
