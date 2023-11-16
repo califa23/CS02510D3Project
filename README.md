@@ -13,6 +13,7 @@
 ## Contributing
 - Please create your own branch on this project and do not merge before testing and letting us all know
     - ex: `git checkout -B /califano`
+- While working, refresh the page by using `Ctr+Shift+R` to see changes. Regular refresh does not work
 
 ## Files
 - index.html - main landing page

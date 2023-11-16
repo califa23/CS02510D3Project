@@ -13,7 +13,7 @@ d3.csv('data/7-1-2015.csv').then(async data => {
 
     const uniqueCarIds = [...new Set(filteredData.map(d => d['car-id']))];
     const carTypeColorMap = {
-        '1': 'red',
+        '1': 'cyan',
         '2': 'blue',
         '3': 'yellow',
         '4': 'pink',
