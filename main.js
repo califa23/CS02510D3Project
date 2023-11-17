@@ -4,7 +4,7 @@ const svg = d3.select('#map-container');
 const clockSvg = d3.select('#clock-container');
 const added = new Set();
 
-const speedMultiplier = 200;
+const speedMultiplier = 150;
 let globalClock = new Date("July 1, 2015 01:58:10"); // Initialize global clock as a Date object
 
 const carMovements = [];
@@ -96,9 +96,13 @@ async function buildCarMovements(sortedData) {
 
             if(gate != nextGate){
                 const coords = allPathCoordinatesMap[gate + "-" + nextGate];
-
+                
                 if (coords == undefined) {
                     console.log('MISSING: ' + gate + '-' + nextGate);
+                }
+
+                if(nextGate.includes('entrance')){
+                    coords.push([-100, -100]);
                 }
 
                 carMovements.push({
@@ -120,7 +124,7 @@ function moveObject(selector, newX, newY) {
     }
     d3.select(selector)
         .transition()
-        .duration(10) // Duration of the transition in milliseconds
+        .duration(1) // Duration of the transition in milliseconds
         .attr('cx', newX)
         .attr('cy', newY);
 }
