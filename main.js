@@ -1,13 +1,28 @@
 import allPathCoordinatesMap from './coordinates.js';
-const svg = d3.select('#svg-container');
+const mapSvg = d3.select('#map-container');
+const clockSvg = d3.select('#clock-container');
 
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function updateClockText(timestamp) {
+    // Remove the previous text
+    clockSvg.select('text').remove();
+
+    // Append a new text element
+    clockSvg.append('text')
+        .attr('x', 20)
+        .attr('y', 100)
+        .text( d3.timeFormat('%Y-%m-%d %H:%M:%S')(new Date(timestamp)))
+        .attr('fill', 'black')
+        .style('font-size', '100px');
+}
+
 d3.csv('data/7-1-2015.csv').then(async data => {
-    const filteredData = data;
-    //const filteredData = data.filter(entry => entry['car-type'].includes('1'));
+    data = data.sort((a, b) => new Date(a['Timestamp']).getTime() - new Date(b['Timestamp']).getTime());
+    //const filteredData = data;
+    const filteredData = data.filter(entry => entry['car-type'].includes('2P'));
     //const filteredData = data.filter(entry => entry['car-id'].includes('20150201040237-719'));
     //const filteredData = data.filter(entry => entry['car-id'].includes('20155801035840-804'));
 
@@ -26,7 +41,7 @@ d3.csv('data/7-1-2015.csv').then(async data => {
     uniqueCarIds.forEach(carId => {
         const carData = filteredData.find(d => d['car-id'] === carId);
 
-        svg.append('circle')
+        mapSvg.append('circle')
             .attr('cx', -100) 
             .attr('cy', -100) 
             .attr('r', 10) 
@@ -38,9 +53,12 @@ d3.csv('data/7-1-2015.csv').then(async data => {
         .key(d => d['car-id'])
         .entries(filteredData);
 
+        console.log(nestedData);
+
     const carMovements = nestedData.map(async carData => {
         let endTime;
         let nextGate;
+        
 
         for (let i = 0; i < carData.values.length; i++) {
             const val = carData.values[i];
@@ -48,6 +66,8 @@ d3.csv('data/7-1-2015.csv').then(async data => {
             const gate = val['gate-name'].replace(/-/g, '~');
             nextGate = i < carData.values.length - 1 ? carData.values[i + 1]['gate-name'].replace(/-/g, '~'): '';
             endTime = i < carData.values.length - 1 ? new Date(carData.values[i + 1]['Timestamp']).getTime() : timestamp;
+
+            updateClockText(timestamp);
 
             if (nextGate !== '' && gate != nextGate) {
                 //console.log(gate +'-'+ nextGate);
