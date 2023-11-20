@@ -1,10 +1,13 @@
 import allPathCoordinatesMap from './coordinates.js';
 
-const svg = d3.select('#map-container');
-const clockSvg = d3.select('#clock-container');
+var mapSvg = d3.select("#map-container").append("g");
+var legendCircleSvg = d3.select("#legendCircle-container").append("g");
+var legendTextSvg = d3.select("#legendText-container").append("g");
+var clockSvg = d3.select("#clock-container").append("g");
+
 const added = new Set();
 
-const speedMultiplier = 150;
+const speedMultiplier = 100;
 let globalClock = new Date("July 1, 2015 01:58:10"); // Initialize global clock as a Date object
 
 const carMovements = [];
@@ -17,6 +20,17 @@ const carTypeColorMap = {
     '6': 'purple',
     '2P': 'green'
 };
+
+const carTypeAbrvToName = {
+    '1': '2 Axle Car (or motorcycle)',
+    '2': '2 Axle Truck',
+    '3': '3 Axle Truck',
+    '4': '4 Axle (and above) Truck',
+    '5': '2 Axle Bus',
+    '6': '3 Axle Bus',
+    '2P': 'Ranger Vehicle'
+};
+
 // Function to check if it's time to start moving a car
 function isTimeToMoveCar(timestamp) {
     return globalClock.getTime() >= timestamp;
@@ -30,7 +44,7 @@ function updateGlobalClock() {
         const movement = carMovements[0];
         if(isTimeToMoveCar(movement.startTime)){
             if(!added.has(movement.carId)){
-                svg.append('circle')
+                mapSvg.append('circle')
                 .attr('cx', movement.coords[0][0])
                 .attr('cy', movement.coords[0][1])
                 .attr('r', 10)
@@ -46,14 +60,24 @@ function updateGlobalClock() {
 
 // Function to update the clock text with date and time
 function updateClockText() {
-    const formattedTime = d3.timeFormat('%Y-%m-%d %H:%M:%S')(globalClock);
-    clockSvg.select('text').remove();
+    const date = d3.timeFormat('%Y-%m-%d')(globalClock);
+    const time = d3.timeFormat('%I:%M:%S %p')(globalClock);
+    clockSvg.selectAll('text').remove();
+    
     clockSvg.append('text')
-        .attr('x', 20)
-        .attr('y', 50)
-        .text(formattedTime)
-        .attr('fill', 'black')
-        .style('font-size', '40px');
+    .attr('x', 20)
+    .attr('y', 50)
+    .text(date)
+    .attr('fill', 'black')
+    .style('font-size', '40px');
+
+    clockSvg.append('text')
+    .attr('x', 20)
+    .attr('y', 90) 
+    .append('tspan')
+    .text(time)
+    .attr('fill', 'black')
+    .style('font-size', '40px');
 }
 
 // Periodically update the global clock every second
@@ -140,10 +164,31 @@ async function moveAlongCoordinates(selector, coordinates, timeToTravel) {
     }
 }
 
+function showLegend(){
+    let i = 40;
+    for(const [key, value] of Object.entries(carTypeColorMap)){
+        legendCircleSvg.append('circle')
+        .attr('cx', 40)
+        .attr('cy', i)
+        .attr('r', 30)
+        .style('fill', value);
+
+        legendTextSvg.append('text')
+        .attr("x", 30)
+        .attr("y", i)
+        .attr("text-anchor", "left")
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "40px")
+        .text(carTypeAbrvToName[key]);
+
+        i = i + 100;
+    }
+}
+
 // read data from csv
 d3.csv('data/7-1-2015.csv').then(async data => {
     const filteredData = data;
-
+    showLegend();
     const sortedData = filteredData.sort((a, b) => new Date(a['Timestamp']).getTime() - new Date(b['Timestamp']).getTime());
     await buildCarMovements(sortedData);
 });
