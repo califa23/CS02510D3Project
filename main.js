@@ -5,11 +5,14 @@ var legendCircleSvg = d3.select("#legendCircle-container").append("g");
 var legendTextSvg = d3.select("#legendText-container").append("g");
 var clockSvg = d3.select("#clock-container").append("g");
 
-const added = new Set();
+const speedSlider = d3.select("#speed-slider");
+const speedDisplay = d3.select("#speed-display");
 
-const speedMultiplier = 100;
 let globalClock = new Date("July 1, 2015 01:58:10"); // Initialize global clock as a Date object
+let speedMultiplier = 100; //parseInt(speedSlider.property("value")); // Set the initial value of speedMultiplier
+let intervalId; 
 
+const added = new Set();
 const carMovements = [];
 const carTypeColorMap = {
     '1': 'cyan',
@@ -20,7 +23,6 @@ const carTypeColorMap = {
     '6': 'purple',
     '2P': 'green'
 };
-
 const carTypeAbrvToName = {
     '1': '2 Axle Car (or motorcycle)',
     '2': '2 Axle Truck',
@@ -31,6 +33,20 @@ const carTypeAbrvToName = {
     '2P': 'Ranger Vehicle'
 };
 
+speedSlider.on("input", function() {
+    speedMultiplier = parseInt(this.value);
+    speedDisplay.text(speedMultiplier);
+    updateClockInterval(); // Update the interval when the slider value changes
+});
+
+function updateClockInterval() {
+    clearInterval(intervalId); // Clear the existing interval
+    intervalId = setInterval(updateGlobalClock, 1000 / speedMultiplier);
+}
+  
+// Set the initial interval
+updateClockInterval();
+  
 // Function to check if it's time to start moving a car
 function isTimeToMoveCar(timestamp) {
     return globalClock.getTime() >= timestamp;
@@ -80,7 +96,7 @@ function updateClockText() {
     .style('font-size', '40px');
 }
 
-// Periodically update the global clock every second
+// Periodically update the global clock every second divided by multiplier
 setInterval(updateGlobalClock, 1000/speedMultiplier);
 
 
@@ -142,7 +158,8 @@ async function buildCarMovements(sortedData) {
 }
 
 // Function to move the object to new coordinates
-function moveObject(selector, newX, newY) {
+function moveObject(selector, newX, newY, del) {
+    // Makes circle disappear when hitting entrance gate 
     if (newX == -100 && newY == -100) {
         d3.select(selector).style('opacity', 0);
     }
@@ -159,7 +176,7 @@ async function moveAlongCoordinates(selector, coordinates, timeToTravel) {
     const t = timeToTravel;
     const del = t / distance;
     for (const coordinate of coordinates) {
-        moveObject(selector, coordinate[0], coordinate[1]);
+        moveObject(selector, coordinate[0], coordinate[1], del/speedMultiplier);
         await delay(del/speedMultiplier); // Wait before the next move
     }
 }
@@ -185,7 +202,7 @@ function showLegend(){
     }
 }
 
-// read data from csv
+// Read data from csv
 d3.csv('data/7-1-2015.csv').then(async data => {
     const filteredData = data;
     showLegend();
