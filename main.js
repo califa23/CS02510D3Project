@@ -142,15 +142,16 @@ async function buildCarMovements(sortedData) {
 }
 
 // Function to move the object to new coordinates
-function moveObject(selector, newX, newY) {
+function moveObject(selector, newX, newY, del) {
     if (newX == -100 && newY == -100) {
         d3.select(selector).style('opacity', 0);
     }
     d3.select(selector)
         .transition()
-        .duration(1) // Duration of the transition in milliseconds
+        .duration(del) // Duration of the transition in milliseconds
         .attr('cx', newX)
-        .attr('cy', newY);
+        .attr('cy', newY)
+        .ease(d3.easeLinear);
 }
 
 // Function to move along coordinates with delay
@@ -159,7 +160,7 @@ async function moveAlongCoordinates(selector, coordinates, timeToTravel) {
     const t = timeToTravel;
     const del = t / distance;
     for (const coordinate of coordinates) {
-        moveObject(selector, coordinate[0], coordinate[1]);
+        moveObject(selector, coordinate[0], coordinate[1],del/speedMultiplier);
         await delay(del/speedMultiplier); // Wait before the next move
     }
 }
