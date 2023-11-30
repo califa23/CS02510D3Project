@@ -8,7 +8,7 @@ var clockSvg = d3.select("#clock-container").append("g");
 const speedSlider = d3.select("#speed-slider");
 const speedDisplay = d3.select("#speed-display");
 
-let globalClock = new Date("July 1, 2015 01:58:10"); // Initialize global clock as a Date object
+let globalClock = new Date("May 1, 2015 12:40:10"); // Initialize global clock as a Date object
 let speedMultiplier = 100; //parseInt(speedSlider.property("value")); // Set the initial value of speedMultiplier
 let intervalId; 
 
@@ -39,13 +39,13 @@ speedSlider.on("input", function() {
     updateClockInterval(); // Update the interval when the slider value changes
 });
 
-function updateClockInterval() {
-    clearInterval(intervalId); // Clear the existing interval
-    intervalId = setInterval(updateGlobalClock, 1000 / speedMultiplier);
-}
+// function updateClockInterval() {
+//     clearInterval(intervalId); // Clear the existing interval
+//     intervalId = setInterval(updateGlobalClock, 1000 / speedMultiplier);
+// }
   
-// Set the initial interval
-updateClockInterval();
+// // Set the initial interval
+// updateClockInterval();
   
 // Function to check if it's time to start moving a car
 function isTimeToMoveCar(timestamp) {
@@ -141,7 +141,8 @@ async function buildCarMovements(sortedData) {
                     console.log('MISSING: ' + gate + '-' + nextGate);
                 }
 
-                if(nextGate.includes('entrance')){
+                if(nextGate.includes('entrance') || nextGate.includes('base')){
+                    if(coords != undefined)
                     coords.push([-100, -100]);
                 }
 
@@ -165,7 +166,7 @@ function moveObject(selector, newX, newY, del) {
     }
     d3.select(selector)
         .transition()
-        .duration(1) // Duration of the transition in milliseconds
+        .duration(del) // Duration of the transition in milliseconds
         .attr('cx', newX)
         .attr('cy', newY);
 }
@@ -179,6 +180,9 @@ async function moveAlongCoordinates(selector, coordinates, timeToTravel) {
         moveObject(selector, coordinate[0], coordinate[1], del/speedMultiplier);
         await delay(del/speedMultiplier); // Wait before the next move
     }
+    // console.log(selector);
+    // console.log(timeToTravel);
+    // console.log(coordinates);
 }
 
 function showLegend(){
@@ -203,7 +207,7 @@ function showLegend(){
 }
 
 // Read data from csv
-d3.csv('data/7-1-2015.csv').then(async data => {
+d3.csv('data/Lekagul Sensor Data.csv').then(async data => {
     const filteredData = data;
     showLegend();
     const sortedData = filteredData.sort((a, b) => new Date(a['Timestamp']).getTime() - new Date(b['Timestamp']).getTime());
