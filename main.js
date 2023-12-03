@@ -8,7 +8,7 @@ var clockSvg = d3.select("#clock-container").append("g");
 const added = new Set();
 
 const speedMultiplier = 100;
-let globalClock = new Date("July 1, 2015 01:58:10"); // Initialize global clock as a Date object
+let globalClock = new Date("May 1, 2015 00:40:10"); // Initialize global clock as a Date object
 
 const carMovements = [];
 const carTypeColorMap = {
@@ -187,7 +187,7 @@ function showLegend(){
 }
 
 // read data from csv
-d3.csv('data/7-1-2015.csv').then(async data => {
+d3.csv('data/Lekagul Sensor Data.csv').then(async data => {
     const filteredData = data;
     showLegend();
     const sortedData = filteredData.sort((a, b) => new Date(a['Timestamp']).getTime() - new Date(b['Timestamp']).getTime());
