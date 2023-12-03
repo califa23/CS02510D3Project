@@ -4,12 +4,12 @@ var mapSvg = d3.select("#map-container").append("g");
 var legendCircleSvg = d3.select("#legendCircle-container").append("g");
 var legendTextSvg = d3.select("#legendText-container").append("g");
 var clockSvg = d3.select("#clock-container").append("g");
-
-const added = new Set();
+var carIdSvg = d3.select("#carIdText-container").append("g");
 
 const speedMultiplier = 100;
 let globalClock = new Date("May 1, 2015 00:40:10"); // Initialize global clock as a Date object
 
+const added = new Set();
 const carMovements = [];
 const carTypeColorMap = {
     '1': 'cyan',
@@ -20,7 +20,6 @@ const carTypeColorMap = {
     '6': 'purple',
     '2P': 'green'
 };
-
 const carTypeAbrvToName = {
     '1': '2 Axle Car (or motorcycle)',
     '2': '2 Axle Truck',
@@ -49,13 +48,16 @@ function updateGlobalClock() {
                 .attr('cy', movement.coords[0][1])
                 .attr('r', 10)
                 .style('fill', carTypeColorMap[movement.carType])
-                .attr('id', `car-${movement.carId}`);
+                .attr('id', `car-${movement.carId}`)
+                .on('click', () => handleCircleClick(`car-${movement.carId}`))
+                .attr('car-type', movement.carType);
                 added.add(movement.carId);
             }
             moveAlongCoordinates(`#car-${movement.carId}`, movement.coords, movement.endTime - movement.startTime);
             carMovements.shift();
         }
     }
+    //filterCirclesByType();
 }
 
 // Function to update the clock text with date and time
@@ -172,7 +174,9 @@ function showLegend(){
         .attr('cx', 40)
         .attr('cy', i)
         .attr('r', 30)
-        .style('fill', value);
+        .style('fill', value)
+        .attr('id', key)
+        .on('click', () => filterType(key));
 
         legendTextSvg.append('text')
         .attr("x", 30)
@@ -186,7 +190,46 @@ function showLegend(){
     }
 }
 
-// read data from csv
+function handleCircleClick(circleId) {
+    // Reset size for all circles
+    mapSvg.selectAll('circle')
+        .attr('r', 10);
+
+    // Enlarge the clicked circle
+    mapSvg.select(`#${circleId}`)
+        .attr('r', 30);
+        updateTextField(circleId.substring(4));
+}
+    
+function updateTextField(carId) {
+    carIdSvg.text(null);
+    carIdSvg.append('text')
+    .attr("x", 40)
+    .attr("y", 40)
+    .attr("text-anchor", "left")
+    .attr("alignment-baseline", "middle")
+    .style("font-size", "40px")
+    .text('Car ID: ' + carId);
+}
+    
+// function filterCirclesByType() {
+//     const selectedType = d3.select('#legendCircle-container .selected').attr('id');
+//     mapSvg.selectAll('circle')
+//         .style('display', function () {
+//             const carType = d3.select(this).attr('car-type');
+//             return (selectedType === undefined || selectedType === carType) ? 'block' : 'none';
+//         });
+// }
+
+function filterType(type) {
+    // d3.select('#legendCircle-container .selected').classed('selected', false);
+    // d3.select(`#${type}`).classed('selected', true);
+    // filterCirclesByType();
+
+    console.log(type);
+}
+
+// Read data from csv
 d3.csv('data/Lekagul Sensor Data.csv').then(async data => {
     const filteredData = data;
     showLegend();
