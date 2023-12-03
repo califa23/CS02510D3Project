@@ -7,7 +7,7 @@ var clockSvg = d3.select("#clock-container").append("g");
 var carIdSvg = d3.select("#carIdText-container").append("g");
 
 const speedMultiplier = 100;
-let globalClock = new Date("May 1, 2015 00:40:10"); // Initialize global clock as a Date object
+let globalClock = new Date("May 1, 2015 10:40:10"); // Initialize global clock as a Date object
 
 const added = new Set();
 const carMovements = [];
