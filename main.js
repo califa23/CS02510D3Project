@@ -15,7 +15,7 @@ startButton.addEventListener('click', async () => {
         console.log(startDate)
         console.log(endDate)
 
-    
+
         const filteredData = data.filter(entry => 
             selectedCarTypes.includes(entry['car-type']) &&
             entry['Start Timestamp'] >= startDate &&
